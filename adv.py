@@ -6,33 +6,16 @@ import random
 from ast import literal_eval
 
 
-class Queue():
-    def __init__(self):
-        self.queue = []
-
-    def enqueue(self, value):
-        self.queue.append(value)
-
-    def dequeue(self):
-        if self.size() > 0:
-            return self.queue.pop(0)
-        else:
-            return None
-
-    def size(self):
-        return len(self.queue)
-
-
 # Load world
 world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
@@ -46,9 +29,7 @@ player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
-traversal_path = []
-graph = {}
-backtrack = []
+# traversal_path = []
 
 
 def add_edge(direction):
@@ -63,11 +44,11 @@ def add_edge(direction):
 
 
 def traverse_maze():
-    # results = []
+    results = []
     graph = {}
     backtrack = []
     while len(graph) < len(room_graph):
-        exits = player.current_room.get_exits().copy()
+        exits = player.current_room.get_exits()
         curr_room = player.current_room.id
 
         if curr_room not in graph:
@@ -79,29 +60,27 @@ def traverse_maze():
             choice = random.choice(graph[curr_room])
             graph[curr_room].remove(choice)
             player.travel(choice)
-            traversal_path.append(choice)
+            results.append(choice)
             backtrack.append(add_edge(choice))
 
         else:
             direction = backtrack.pop()
             player.travel(direction)
-            traversal_path.append(direction)
-    # return results
+            results.append(direction)
+    return results
 
 
-traverse_maze()
-# res = []
-# for _ in range(5):
-#     graph = {}
-#     backtrack = []
-#     res.append(traverse_maze())
-# min_moves = len(res[0])
-# path = res[0]
-# for r in res:
-#     if len(r) < min_moves:
-#         min_moves = len(r)
-#         path = r
-# traversal_path = path
+res = []
+for _ in range(10000):
+    player = Player(world.starting_room)
+    res.append(traverse_maze())
+min_moves = len(res[0])
+path = res[0]
+for r in res:
+    if len(r) < min_moves:
+        min_moves = len(r)
+        path = r
+traversal_path = path
 
 
 # TRAVERSAL TEST - DO NOT MODIFY
